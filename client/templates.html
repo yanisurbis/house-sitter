@@ -13,7 +13,7 @@
 <template name = "selectHouse">
   <select id="selectHouse">
     <option value="" {{isSelected}}></option>
-    {{#each housenameId}}
+    {{#each housesNameId}}
       <option value="{{_id}}" {{isSelected}}> {{name}} </option>
     {{/each}}
   </select>

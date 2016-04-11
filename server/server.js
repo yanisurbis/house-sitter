@@ -1,4 +1,6 @@
 Meteor.startup(() => {
+  HousesCollection.remove({})
+
   if (HousesCollection.find().count() === 0) {
 
     var houses = [{
