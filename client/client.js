@@ -100,7 +100,11 @@ Template.deleteHouse.events({
   'click button#deleteHouse': function(evt) {
     evt.preventDefault()
 
-    HousesCollection.remove({_id: Session.get('selectedHouseId')})
-    Session.set('selectedHouseId', undefined)
+    const deleteConfirmation = confirm('Do you really want to delete this house?')
+
+    if (deleteConfirmation) {
+      HousesCollection.remove({_id: Session.get('selectedHouseId')})
+      Session.set('selectedHouseId', undefined)
+    }
   }
 })
