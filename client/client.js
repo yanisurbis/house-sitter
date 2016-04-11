@@ -27,3 +27,49 @@ Template.showHouse.helpers({
     return HousesCollection.findOne({_id: Session.get('selectedHouseId')})
   }
 })
+
+// Template.plantDetails.onCreated(function() {
+//   this.watered = new ReactiveVar()
+//   this.watered.set(false)
+// })
+//
+// Template.plantDetails.events({
+//   'click button': function (evt, tpl) {
+//     tpl.watered.set(true)
+//   }
+// })
+//
+// Template.plantDetails.helpers({
+//   watered: function () {
+//     return Template.instance().watered.get() ? 'disabled' : ''
+//   }
+// })
+
+Template.plantDetails.events({
+  'click button.water': function (evt) {
+    //console.log("button clicked")
+    var plantId = $(evt.currentTarget).attr('data-id')
+    //console.log("plantId on Set: " + plantId);
+    Session.set(plantId, true)
+    var lastVisit = new Date()
+    HousesCollection.update({
+      _id: Session.get("selectedHouseId")
+    }, {
+      $set : {
+        lastVisit: lastVisit
+      }
+    }
+    )
+  }
+})
+
+Template.plantDetails.helpers({
+  isWatered: function () {
+    var plantId = Session.get("selectedHouseId") + '-' + this.color
+
+    //console.log("plantId: " + plantId);
+    //console.log("session: " + Session.get(plantId))
+
+    return Session.get(plantId) ? 'disabled' : 'x'
+  }
+})
