@@ -88,9 +88,19 @@ Template.houseForm.events({
       name: houseName,
       plants: [{
         color: plantColor,
+        instructions: plantInstructions
       }]
     }))
 
     $('input').val('')
+  }
+})
+
+Template.deleteHouse.events({
+  'click button#deleteHouse': function(evt) {
+    evt.preventDefault()
+
+    HousesCollection.remove({_id: Session.get('selectedHouseId')})
+    Session.set('selectedHouseId', undefined)
   }
 })

@@ -5,6 +5,7 @@
 <body>
   <h1>The House-Sitter App</h1>
 
+  {{> deleteHouse}}
   {{> selectHouse }}
   {{> showHouse }}
   {{> houseForm}}
@@ -57,4 +58,10 @@
     <br/>
     <button id="saveHouse">Save House</button>
   </form>
+</template>
+
+<template name = "deleteHouse">
+  <button id="deleteHouse">
+    Delete
+  </button>
 </template>
