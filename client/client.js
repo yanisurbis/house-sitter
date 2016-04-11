@@ -63,6 +63,8 @@ Template.plantDetails.events({
   }
 })
 
+
+
 Template.plantDetails.helpers({
   isWatered: function () {
     var plantId = Session.get("selectedHouseId") + '-' + this.color
@@ -71,5 +73,24 @@ Template.plantDetails.helpers({
     //console.log("session: " + Session.get(plantId))
 
     return Session.get(plantId) ? 'disabled' : 'x'
+  }
+})
+
+Template.houseForm.events({
+  'click button#saveHouse': function(evt) {
+    evt.preventDefault()
+
+    var houseName = $("input#house-name").val()
+    var plantColor = $("input#plant-color").val()
+    var plantInstructions = $("input#plant-instructions").val()
+
+    Session.set('selectedHouseId', HousesCollection.insert({
+      name: houseName,
+      plants: [{
+        color: plantColor,
+      }]
+    }))
+
+    $('input').val('')
   }
 })
