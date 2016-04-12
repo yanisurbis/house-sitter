@@ -8,7 +8,7 @@
   {{> deleteHouse}}
   {{> selectHouse }}
   {{> showHouse }}
-  {{> houseForm}}
+  {{> houseForm selectedHouse}}
 </body>
 
 <template name = "selectHouse">
@@ -21,7 +21,7 @@
 </template>
 
 <template name = "showHouse">
-  {{#with house}}
+  {{#with selectedHouse}}
     <h2>Taking care of {{name}}'s house</h2>
     <p>
       Last visit: {{lastVisit}}

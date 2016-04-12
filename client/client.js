@@ -1,4 +1,12 @@
 // selectHouse Template
+LocalHouse = new Mongo.Collection(null)
+var newHouse = {
+  name: '',
+  plants: [],
+  lastsave: 'never',
+  status: 'unsaved'
+}
+Session.setDefault('selectedHouseId', '')
 
 Tracker.autorun(() => {
   console.log("The selectedHouse ID is :"
@@ -14,12 +22,21 @@ Template.selectHouse.helpers({
   }
 })
 
-Template.selectHouse.events = {
+Template.selectHouse.events({
   'change #selectHouse': function (evt) {
-    //console.log(HousesCollection.findOne({_id: evt.currentTarget.value}))
-    Session.set('selectedHouseId', evt.currentTarget.value)
+    var selectedId = evt.currentTarget.value;
+    var newId = LocalHouse.upsert(
+      selectedId,
+      HousesCollection.findOne(selectedId) || newHouse
+    ).insertedId;
+    if (!newId) newId = selectedId;
+    Session.set('selectedHouseId', newId);
   }
-}
+});
+
+Template.registerHelper('selectedHouse', function () {
+  return LocalHouse.findOne(Session.get('selectedHouseId'));
+});
 
 
 Template.showHouse.helpers({
