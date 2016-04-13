@@ -38,12 +38,15 @@ Template.registerHelper('selectedHouse', function () {
   return LocalHouse.findOne(Session.get('selectedHouseId'));
 });
 
-
-Template.showHouse.helpers({
-  house: () => {
-    return HousesCollection.findOne({_id: Session.get('selectedHouseId')})
-  }
+Template.registerHelper('withIndex', function (list) {
+  var withIndex = _.map(list, function (v, i) {
+    if (v === null) return
+    v.index = i
+    return v
+  })
+  return withIndex
 })
+
 
 // Template.plantDetails.onCreated(function() {
 //   this.watered = new ReactiveVar()
@@ -80,8 +83,6 @@ Template.plantDetails.events({
   }
 })
 
-
-
 Template.plantDetails.helpers({
   isWatered: function () {
     var plantId = Session.get("selectedHouseId") + '-' + this.color
@@ -94,22 +95,27 @@ Template.plantDetails.helpers({
 })
 
 Template.houseForm.events({
-  'click button#saveHouse': function(evt) {
+  'click button#save-house': function (evt) {
+    evt.preventDefault();
+    var id = Session.get('selectedHouseId');
+    var modifier = {$set: {'lastsave': new Date()}};
+    updateLocalHouse(id, modifier);
+    // persist house document in remote db
+    HousesCollection.upsert(
+      {_id: id},
+      LocalHouse.findOne(id)
+    );
+  },
+  'keyup input#house-name': function (evt) {
     evt.preventDefault()
-
-    var houseName = $("input#house-name").val()
-    var plantColor = $("input#plant-color").val()
-    var plantInstructions = $("input#plant-instructions").val()
-
-    Session.set('selectedHouseId', HousesCollection.insert({
-      name: houseName,
-      plants: [{
-        color: plantColor,
-        instructions: plantInstructions
-      }]
-    }))
-
-    $('input').val('')
+    var modifier = {$set: {'name': evt.currentTarget.value}}
+    updateLocalHouse(Session.get('selectedHouseId'), modifier)
+  },
+  'click button.addPlant': function(evt) {
+    evt.preventDefault()
+    var newPlant = {color: '', instructions: ''}
+    var modifier = {$push: {'plants': newPlant}}
+    updateLocalHouse(Session.get('selectedHouseId'), modifier)
   }
 })
 
@@ -125,3 +131,33 @@ Template.deleteHouse.events({
     }
   }
 })
+
+Template.plantFieldset.events({
+  'keyup input.color, keyup input.instructions': function (evt) {
+    evt.preventDefault();
+    var index = evt.target.getAttribute('data-index');
+    var field = evt.target.getAttribute('class');
+    var plantProperty = 'plants.' + index + '.' + field;
+    var modifier = {$set: {}};
+    modifier['$set'][plantProperty] = evt.target.value;
+    updateLocalHouse(Session.get('selectedHouseId'), modifier);
+  },
+  'click button.removePlant': function (evt) {
+    evt.preventDefault();
+    var index = evt.target.getAttribute('data-index');
+    var plants = Template.parentData(1).plants;
+    plants.splice(index, 1);
+    var modifier = {$set: {'plants': plants}};
+    updateLocalHouse(Session.get('selectedHouseId'), modifier);
+  },
+})
+
+
+updateLocalHouse = function (id, modifier) {
+  LocalHouse.update(
+    {
+      '_id': id
+    },
+    modifier
+  );
+};
